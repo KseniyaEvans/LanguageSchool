@@ -68,6 +68,48 @@ namespace LanguageSchoolApp
                             
                             break;
                         }
+                    case "buy":
+                        {
+                            if (this._menu == MENU.CartMenu)
+                            {
+                                this._menu = MENU.BuyCourses;
+                                menubuilder.addMenu(_menu);
+
+                                DefaultCommand command = new DefaultCommand(menubuilder, _menu);
+
+                                invoker.AddCommand(command);
+                                invoker.Execute();
+                            }
+                            break;
+                        }
+                    case "cl":
+                        {
+                            if (this._menu == MENU.CartMenu)
+                            {
+                                this._menu = MENU.ClearCart;
+                                menubuilder.addMenu(_menu);
+
+                                DefaultCommand command = new DefaultCommand(menubuilder, _menu);
+
+                                invoker.AddCommand(command);
+                                invoker.Execute();
+                            }
+                            break;
+                        }
+                    case "rem":
+                        {
+                            if (this._menu == MENU.CartMenu)
+                            {
+                                this._menu = MENU.RemoveCourse;
+                                menubuilder.addMenu(_menu);
+
+                                DefaultCommand command = new DefaultCommand(menubuilder, _menu);
+
+                                invoker.AddCommand(command);
+                                invoker.Execute();
+                            }
+                            break;
+                        }
                     case "b":
                         {
                             this._menu = MENU.BackMenu;
@@ -89,8 +131,20 @@ namespace LanguageSchoolApp
                                 invoker.AddCommand(command);
                                 invoker.Execute();
                             }
-                            
+                            break;
+                        }
+                    case "add":
+                        {
+                            if (this._menu == MENU.CoursesMenu)
+                            {
+                                this._menu = MENU.AddCourse;
+                                menubuilder.addMenu(_menu);
 
+                                DefaultCommand command = new DefaultCommand(menubuilder, _menu);
+
+                                invoker.AddCommand(command);
+                                invoker.Execute();
+                            }
                             break;
                         }
                     default:

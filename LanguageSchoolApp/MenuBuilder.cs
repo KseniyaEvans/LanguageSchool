@@ -12,11 +12,10 @@ namespace LanguageSchoolApp
         CoursesMenu,
         BackMenu,
 
-        CoursesByLanguage,
         CoursesByLevel,
 
         ClearCart,
-        DeleteCourse,
+        RemoveCourse,
         BuyCourses,
         AddCourse
     }
@@ -33,7 +32,7 @@ namespace LanguageSchoolApp
     {
         Stack<MENU> _menues = new Stack<MENU>();
         User _user;
-        CoursesData data = new CoursesData();
+        CourseBase data = CourseBase.Instance();
         public MenuBuilder(User user)
         {
             this._user = user;
@@ -66,6 +65,22 @@ namespace LanguageSchoolApp
                         this._user.printInfo();
                         break;
                     }
+                case MENU.AddCourse:
+                    {
+                        Console.WriteLine("Enter the name od course: ");
+                        string input = "";
+                        input = Console.ReadLine().ToLower().ToString();
+                        CourseTemplate course = this.data.GetCourse(input);
+                        if (course != null)
+                        {
+                            this._user.AddCourseToCart(course);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
+                        }
+                        break;
+                    }
                 case MENU.CartMenu:
                     {
                         printGreen("Cart Menu");
@@ -76,20 +91,37 @@ namespace LanguageSchoolApp
                         Console.WriteLine("[R]emove course");
                         break;
                     }
+                case MENU.BuyCourses:
+                    {
+                        if (this._user.BuyCourses())
+                        {
+                            Console.WriteLine("Successfully bought!");
+                        } else
+                        {
+                            Console.WriteLine("Sorry, you don't have enoght money.");
+                        }
+                        break;
+                    }
+                case MENU.ClearCart:
+                    {
+                        this._user.ClearCart();
+                        break;
+                    }
+                case MENU.RemoveCourse:
+                    {
+                        //TODO
+                        break;
+                    }
                 case MENU.CoursesMenu:
                     {
                         printGreen("Courses Menu");
-                        Console.WriteLine("[lan] Show courses by my native language\n[level] Show courses by level");
+                        data.printCourses();
+                        Console.WriteLine("\n[level] Show courses by level");
                         break;
                     }
                 case MENU.BackMenu:
                     {
                         removeMenu();
-                        break;
-                    }
-                case MENU.CoursesByLanguage:
-                    {
-                        data.printByLanguage(_user.nativeLanguage);
                         break;
                     }
                 case MENU.CoursesByLevel:
@@ -102,17 +134,18 @@ namespace LanguageSchoolApp
 
                             string input = Console.ReadKey(true).KeyChar.ToString().ToLower();
                             int level_int = 0;
-                            bool isNumber = Int32.TryParse(input, out level_int); 
-                            if (isNumber)
+                            bool isNumber = Int32.TryParse(input, out level_int);
+                            
+                            if (isNumber && level_int < 6 && level_int >= 0 )
                             {
-                                LEVEL level_en = (LEVEL)Enum.ToObject(typeof(LEVEL), level_int);
-                                data.printByLevel(level_en);
+                                LEVEL level_en = (LEVEL)Enum.ToObject(typeof(LEVEL), level_int);                                
+                                data.PrintByLevel(level_en);
+                                Console.WriteLine("Input: " + level_int);
                             } else
                             {
                                 isRunning = false;
                             }
                         }
-
                         break;
                     }
                 default:

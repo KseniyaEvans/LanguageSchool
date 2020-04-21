@@ -16,14 +16,26 @@ namespace LanguageSchoolApp
         Chinese,
         German
     }
-    public class User
+    public abstract class IUser : ICourseVisitor // visitor
     {
-        private string name;
-        private int money;
+        public string name;
+        
+        protected int money;
         public LANGUAGE nativeLanguage;
-        private List<Course> courses = new List<Course>();
-        private List<Course> cart = new List<Course>();
-
+        protected List<CourseTemplate> courses = new List<CourseTemplate>();
+        protected List<CourseTemplate> cart = new List<CourseTemplate>();
+        public abstract void visit(CourseCreator courseCreator);
+    }
+    public class User : IUser
+    {
+        public User(string _name)
+        {
+            this.name = _name;
+        }
+        public override void visit(CourseCreator courseCreator)
+        {
+            Console.WriteLine(this.name + ", you are not allowed to create a course");
+        }
         public User()
         {
             this.money = 0;
@@ -66,12 +78,12 @@ namespace LanguageSchoolApp
                 Console.WriteLine("Your courses list is empty. Would you like to buy something? :) ");
             }
         }
-        public bool AddCourseToCart(Course course)
+        public bool AddCourseToCart(CourseTemplate course)
         {
             cart.Add(course);
             return true;
         }
-        public bool RemoveCourseFromCart(Course course)
+        public bool RemoveCourseFromCart(CourseTemplate course)
         {
             this.cart.Remove(course);
             return true;
@@ -89,6 +101,11 @@ namespace LanguageSchoolApp
             {
                 Console.WriteLine("Your cart list is empty. Would you like to buy something? :) ");
             }
+        }
+        public bool ClearCart()
+        {
+            this.cart.Clear();
+            return true;
         }
         public bool BuyCourses()
         {
@@ -116,9 +133,26 @@ namespace LanguageSchoolApp
                 }
             }
         }
-        public List<Course> GetMyCourses()
+        public List<CourseTemplate> GetMyCourses()
         {
             return this.courses;
+        }
+    }
+
+    public class Admin : User
+    {
+        CourseState preparedCourse = new DefaultState();
+        public Admin(string _name) : base(_name) { }
+        public void prepareCourse(CourseState state)
+        {
+            this.preparedCourse = state;
+        }
+
+        //Prototype, State and Visitor together (and Flyweight additional)
+        public override void visit(CourseCreator courseCreator)
+        {
+            CourseTemplate ct = courseCreator.prototype.create(preparedCourse);
+            courseCreator.database.AddCourse(ct.name, ct);
         }
     }
 }
