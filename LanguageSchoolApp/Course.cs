@@ -15,22 +15,20 @@ namespace LanguageSchoolApp
     }
 
     //Prototype
-    public abstract class CourseTemplate : ICloneable
+    public abstract class ICourse : ICloneable
     {
         protected string _name;
         protected LEVEL _level;
         protected int _cost;
-        protected int _count;
 
         public string name { get { return _name; } }
         public LEVEL level { get { return _level; } }
         public int cost { get { return _cost; } }
-        public int count { get { return _count; } }
 
         //State
         abstract public CourseState saveState();
         abstract public void loadState(CourseState state);
-        abstract public CourseTemplate create(CourseState state);
+        abstract public ICourse create(CourseState state);
         abstract public object Clone();
     }
     public abstract class CourseState
@@ -38,7 +36,6 @@ namespace LanguageSchoolApp
         public string name;
         public LEVEL level;
         public int cost;
-        public int count;
     }
     public class DefaultState : CourseState
     {
@@ -47,41 +44,38 @@ namespace LanguageSchoolApp
             this.name = "underfined name";
             this.level = LEVEL.A1;
             this.cost = 0;
-            this.count = 0;
         }
     }
     public class DynamicState : CourseState
     {
-        public DynamicState(string name, LEVEL level, int cost, int count)
+        public DynamicState(string name, LEVEL level, int cost)
         {
             this.name = name;
             this.level = level;
             this.cost = cost;
-            this.count = count;
         }
     }
-    public class Course : CourseTemplate //element
+    public class Course : ICourse //element
     {
-        CourseState defState = new DefaultState();
+        CourseState _defaultState = new DefaultState();
         public Course()
         {
-            loadState(defState);
+            loadState(_defaultState);
         }
         public override CourseState saveState()
         {
-            return new DynamicState(this._name, this._level, this._cost, this._count);
+            return new DynamicState(this._name, this._level, this._cost);
         }
         public override void loadState(CourseState state)
         {
             this._name = state.name;
             this._level = state.level;
             this._cost = state.cost;
-            this._count = state.count;
         }
-        public override CourseTemplate create(CourseState state)
+        public override ICourse create(CourseState state)
         {
             loadState(state);
-            return this.Clone() as CourseTemplate;
+            return this.Clone() as ICourse;
         }
         public override object Clone()
         {

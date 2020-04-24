@@ -4,26 +4,12 @@ using System.Text;
 
 namespace LanguageSchoolApp
 {
-    public enum LANGUAGE
-    {
-        NON,
-        Ukrainian,
-        Russian,
-        English,
-        Norwegian, 
-        Spanish, 
-        French,
-        Chinese,
-        German
-    }
     public abstract class IUser : ICourseVisitor // visitor
     {
         public string name;
-        
         protected int money;
-        public LANGUAGE nativeLanguage;
-        protected List<CourseTemplate> courses = new List<CourseTemplate>();
-        protected List<CourseTemplate> cart = new List<CourseTemplate>();
+        protected List<ICourse> _courses = new List<ICourse>();
+        protected List<ICourse> _cart = new List<ICourse>();
         public abstract void visit(CourseCreator courseCreator);
     }
     public class User : IUser
@@ -41,82 +27,34 @@ namespace LanguageSchoolApp
             this.money = 0;
             this.name = "guest";
         }
-
         public User(string name, int money)
         {
             this.name = name;
             this.money = money;
         }
-        public User(string name, int money, LANGUAGE language)
+        public List<ICourse> GetCourses()
         {
-            this.name = name;
-            this.money = money;
-            this.nativeLanguage = language;
+            return this._courses;
         }
-        public void printInfo()
+        public List<ICourse> GetCart()
         {
-            Console.WriteLine("Hi, " + this.name + "!");
-            Console.WriteLine("Your balance: " + this.money + " UAN");
-            Console.WriteLine("Your native language: " + this.nativeLanguage);
-            printCourses();
-            printCart();
-
-
-        }
-        public void printCourses()
-        {
-            if (this.courses.Count != 0)
-            {
-                Console.WriteLine("Your courses list: ");
-                foreach (Course cr in this.courses)
-                {
-                    Console.WriteLine(cr.name);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Your courses list is empty. Would you like to buy something? :) ");
-            }
-        }
-        public bool AddCourseToCart(CourseTemplate course)
-        {
-            cart.Add(course);
-            return true;
-        }
-        public bool RemoveCourseFromCart(CourseTemplate course)
-        {
-            this.cart.Remove(course);
-            return true;
-        }
-        public void printCart()
-        {
-            if (this.cart.Count != 0)
-            {
-                Console.WriteLine("Your courses list: ");
-                foreach (Course cr in this.cart)
-                {
-                    Console.WriteLine(cr.name);
-                }
-            } else
-            {
-                Console.WriteLine("Your cart list is empty. Would you like to buy something? :) ");
-            }
+            return this._cart;
         }
         public bool ClearCart()
         {
-            this.cart.Clear();
+            this._cart.Clear();
             return true;
         }
         public bool BuyCourses()
         {
-            if (this.money == 0 || this.cart.Count == 0)
+            if (this.money == 0 || this._cart.Count == 0)
             {
                 return false;
             }
             else
             {
                 int moneyNeeded = 0;
-                foreach (Course item in this.cart)
+                foreach (Course item in this._cart)
                 {
                     moneyNeeded += item.cost;
                 }
@@ -127,15 +65,61 @@ namespace LanguageSchoolApp
                 else
                 {
                     this.money -= moneyNeeded;
-                    this.courses.AddRange(cart);
-                    this.cart.Clear();
+                    this._courses.AddRange(this._cart);
+                    ClearCart();
                     return true;
                 }
             }
         }
-        public List<CourseTemplate> GetMyCourses()
+        public bool ContainsInCart(ICourse course)
         {
-            return this.courses;
+            if (this._cart.Contains(course))
+            {
+                return true;
+            }    
+            return false;
+        }
+        public bool ContainsInCourses(ICourse course)
+        {
+            if (this._courses.Contains(course))
+            {
+                return true;
+            }
+            return false;
+        }
+        private ICourse GetCourseFromCart(string name)
+        {
+            foreach(ICourse cr in this._cart)
+            {
+                if (cr.name.Equals(name))
+                {
+                    return cr;
+                }                
+            }
+            return null;
+        }
+        public bool AddCourseToCart(ICourse course)
+        {
+            this._cart.Add(course);
+            return true;
+        }
+        public bool RemoveCourseFromCart(string name)
+        {
+            ICourse cr = GetCourseFromCart(name);
+            if (cr == null)
+            {
+                return false;
+            }
+            if (this._cart.Remove(cr))
+            {
+                return true;
+            }
+            return false;
+        }
+        public void printInfo()
+        {
+            Console.WriteLine("Hi, " + this.name + "!");
+            Console.WriteLine("Balance: " + this.money + " UAN");
         }
     }
 
@@ -147,11 +131,10 @@ namespace LanguageSchoolApp
         {
             this.preparedCourse = state;
         }
-
         //Prototype, State and Visitor together (and Flyweight additional)
         public override void visit(CourseCreator courseCreator)
         {
-            CourseTemplate ct = courseCreator.prototype.create(preparedCourse);
+            ICourse ct = courseCreator.prototype.create(preparedCourse);
             courseCreator.database.AddCourse(ct.name, ct);
         }
     }

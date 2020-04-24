@@ -7,19 +7,17 @@ namespace LanguageSchoolApp
 {
     interface ICourseBase
     {
-        public CourseTemplate GetCourse(string key);
-        public bool AddCourse(string key, CourseTemplate course);
+        public ICourse GetCourse(string key);
+        public bool AddCourse(string key, ICourse course);
         public void printCourses();
         public void PrintByLevel(LEVEL level);
-        public void PrintColour(PrintColourStrategy printstrategy, string message);
-
-
     }
     public class CourseBase : ICourseBase//Flyweight
     {
+        private Dictionary<string, ICourse> _courses = new Dictionary<string, ICourse>();
         private static CourseBase _instance;
-        private PrintColourStrategy _printstrategy; //Strategy
-        protected CourseBase() { }
+        private Printer _printer = new Printer();
+        private CourseBase() { }
         public static CourseBase Instance() //Singleton
         {
             if (_instance == null)
@@ -28,8 +26,7 @@ namespace LanguageSchoolApp
             }
             return _instance;
         }
-        private Dictionary<string, CourseTemplate> _courses= new Dictionary<string, CourseTemplate>();
-        public CourseTemplate GetCourse(string key)
+        public ICourse GetCourse(string key)
         {
             if (this._courses.ContainsKey(key))
             {
@@ -37,7 +34,7 @@ namespace LanguageSchoolApp
             }
             return null;
         }
-        public bool AddCourse(string key, CourseTemplate course)
+        public bool AddCourse(string key, ICourse course)
         {
             if (this._courses.ContainsKey(key))
             {
@@ -53,32 +50,29 @@ namespace LanguageSchoolApp
             this._courses.Add(key, course);
             return true;
         }
-
         public void printCourses()
         {
-            Console.WriteLine("\nHi! All courses we have: ");
-            foreach (KeyValuePair<string, CourseTemplate> cs in this._courses)
+            foreach (KeyValuePair<string, ICourse> cs in this._courses)
             {
-                Console.WriteLine("Course name: " + cs.Key);
+                Console.Write("\t\t");
+                Console.BackgroundColor = ConsoleColor.Red;
+                this._printer.PrintColour(new PrintYellow(), cs.Key);
+                Console.Write(", " + cs.Value.cost + " UAN");
+                Console.WriteLine(", " + cs.Value.level);
             }
             Console.WriteLine("");
         }
-        public void PrintColour(PrintColourStrategy printstrategy, string message)
-        {
-            this._printstrategy = printstrategy;
-            _printstrategy.Print(message);
-        }
         public void PrintByLevel(LEVEL level)
         {
-            Console.Write("\nCourses by level ");
-            this.PrintColour(new PrintGreen(), level.ToString());
+            Console.Write("\n\t\tCourses by level ");
+            this._printer.PrintColour(new PrintGreen(), level.ToString() + "\n");
 
-            foreach (KeyValuePair<string, CourseTemplate> cs in this._courses)
+            foreach (KeyValuePair<string, ICourse> cs in this._courses)
             {
                 if (cs.Value.level == level)
                 {
-                    Console.Write("Course name: " + cs.Key);
-                    Console.WriteLine("cost: " + cs.Value.cost);
+                    this._printer.PrintColour(new PrintYellow(), "\t\t" + cs.Key);
+                    Console.WriteLine(", " + cs.Value.cost + " UAN");
                 }
             }
             Console.WriteLine("");

@@ -21,18 +21,19 @@ namespace LanguageSchoolApp
     }
 
     //BUILDER
-    public interface MenuBuilderTemplate
+    public interface IMenuBuilder
     {
         public abstract void addMenu(MENU menu);
         public abstract void removeMenu();
         public abstract void showMenu();
        
     }
-    public class MenuBuilder : MenuBuilderTemplate
+    public class MenuBuilder : IMenuBuilder
     {
-        Stack<MENU> _menues = new Stack<MENU>();
-        User _user;
-        CourseBase data = CourseBase.Instance();
+        private Stack<MENU> _menues = new Stack<MENU>();
+        private User _user;
+        private CourseBase data = CourseBase.Instance();
+        private Printer _printer = new Printer();
         public MenuBuilder(User user)
         {
             this._user = user;
@@ -45,47 +46,104 @@ namespace LanguageSchoolApp
         {
             Console.WriteLine("      NAVIGATION: ");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            Console.WriteLine("      [P]ersonal Area Menu\n      [C]ourses Menu\n      [Ca]rt Menu");
+            Console.WriteLine("      [M]ain menu\n      [P]ersonal Area Menu\n      [C]ourses Menu\n      [Ca]rt Menu");
             Console.WriteLine("      [B]ack\n      [E]xit");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
-        public void buildMenu(MENU menu)
+        private void printUserInfo()
+        {
+            this._user.printInfo();
+            printCourses();
+            printCart();
+        }
+        private void printCourses()
+        {
+            List<ICourse> courses = this._user.GetCourses();
+            if (courses.Count != 0)
+            {
+                Console.WriteLine("\tYour courses: ");
+                foreach (Course cr in courses)
+                {
+                    _printer.PrintColour(new PrintYellow(), "\t" + cr.name + ", ");
+                    Console.Write(cr.cost + ", " );
+                    _printer.PrintColour(new PrintGreen(), cr.level + "\n\n");
+                }
+            }
+            else
+            {
+                _printer.PrintColour(new PrintRed(), "Your courses list is empty.\n");
+            }
+        }
+        private void printCart()
+        {
+            List<ICourse> cart = this._user.GetCart();
+            if (cart.Count != 0)
+            {
+                Console.WriteLine("\tYour courses cart list: ");
+                foreach (Course cr in cart)
+                {
+                    _printer.PrintColour(new PrintYellow(), "\t" + cr.name + ", ");
+                    Console.WriteLine(cr.cost + "\n");
+                    //_printer.PrintColour(new PrintGreen(), cr.level + "\n");
+                }
+            }
+            else
+            {
+                _printer.PrintColour(new PrintRed(), "Your cart list is empty.\n");
+            }
+        }
+
+        private void buildMenu(MENU menu)
         {
             header();
             switch (menu)
             {
                 case MENU.MainMenu:
                     {
-                        printGreen("Main Menu");
+                        this._printer.PrintColour(new PrintGreen(), "\t\t\tMain Menu\n");
                         break;
                     }
                 case MENU.PersonalAreaMenu:
                     {
-                        printGreen("Personal Area Menu");
-                        this._user.printInfo();
+                        this._printer.PrintColour(new PrintGreen(), "\t\t\tPersonal Area Menu\n");
+                        printUserInfo();
                         break;
                     }
                 case MENU.AddCourse:
                     {
+                        this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
+
+                        data.printCourses();
                         Console.WriteLine("Enter the name od course: ");
                         string input = "";
                         input = Console.ReadLine().ToLower().ToString();
-                        CourseTemplate course = this.data.GetCourse(input);
+                        ICourse course = this.data.GetCourse(input);
                         if (course != null)
                         {
-                            this._user.AddCourseToCart(course);
+                            if (this._user.ContainsInCart(course))
+                            {
+                                Console.WriteLine("You have already added this course to your cart.");
+                            } else if (this._user.ContainsInCourses(course))
+                            {
+                                Console.WriteLine("You have already bought this course.");
+                            }
+                            else
+                            {
+                                this._user.AddCourseToCart(course);
+                            }
                         }
                         else
                         {
                             Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
                         }
+
                         break;
                     }
                 case MENU.CartMenu:
                     {
-                        printGreen("Cart Menu");
-                        
-                        this._user.printCart();
+                        this._printer.PrintColour(new PrintGreen(), "\t\t\tCart Menu\n");
+
+                        printCart();
                         Console.WriteLine("[Buy] Courses");
                         Console.WriteLine("[Cl]ear cart");
                         Console.WriteLine("[R]emove course");
@@ -104,19 +162,36 @@ namespace LanguageSchoolApp
                     }
                 case MENU.ClearCart:
                     {
-                        this._user.ClearCart();
+                        if (this._user.ClearCart())
+                        {
+                            Console.WriteLine("Successfully done!");
+                        } else
+                        {
+                            Console.WriteLine("Something went wrong. But we are working!");
+                        }
                         break;
                     }
                 case MENU.RemoveCourse:
                     {
-                        //TODO
+                        printCart();
+                        Console.WriteLine("Enter the name of course you want to delete: ");
+                        string input = Console.ReadLine().ToLower().ToString();
+                        if (this._user.RemoveCourseFromCart(input))
+                        {
+                            Console.WriteLine("Successfully deleted!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
+                        }
                         break;
                     }
                 case MENU.CoursesMenu:
                     {
-                        printGreen("Courses Menu");
+                        this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
+
                         data.printCourses();
-                        Console.WriteLine("\n[level] Show courses by level");
+                        Console.WriteLine("\n[add] Add course to cart\n[level] Show courses by level");
                         break;
                     }
                 case MENU.BackMenu:
@@ -166,13 +241,9 @@ namespace LanguageSchoolApp
         {
             Console.Clear();
             if (this._menues.Count != 0)
+            {
                 buildMenu(this._menues.Peek());
-        }
-        private void printGreen(string str)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\t\t\t" + str + ":");
-            Console.ResetColor();
+            }
         }
     }
 

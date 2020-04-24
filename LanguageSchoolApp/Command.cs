@@ -4,53 +4,53 @@ using System.Text;
 
 namespace LanguageSchoolApp
 {
-    public abstract class Command
+    public interface ICommand
     {
-        public abstract void Execute();
-        public abstract void Unexecute();
+        public void Execute();
+        public void Unexecute();
     }
 
-    public class DefaultCommand : Command
+    public class DefaultCommand : ICommand
     {
-        MenuBuilderTemplate _receiver;
+        IMenuBuilder _receiver;
         MENU _menu;
-        public DefaultCommand(MenuBuilderTemplate receiver, MENU menu)
+        public DefaultCommand(IMenuBuilder receiver, MENU menu)
         {
             this._menu = menu;
             this._receiver = receiver;
         }
-        public override void Execute()
+        public void Execute()
         {
             _receiver.addMenu(this._menu);
         }
-        public override void Unexecute()
+        public void Unexecute()
         {
             _receiver.removeMenu();
         }
     }
 
-    public class Invoker: Command
+    public class Invoker: ICommand
     {
-        private List<Command> _commandsToExecute = new List<Command>();
-        private MenuBuilderTemplate _receiver;
+        private List<ICommand> _commandsToExecute = new List<ICommand>();
+        private IMenuBuilder _receiver;
         
-        public Invoker(MenuBuilderTemplate builder)
+        public Invoker(IMenuBuilder builder)
         {
             this._receiver = builder;
         }
 
-        public void AddCommand(Command command)
+        public void AddCommand(ICommand command)
         {
             this._commandsToExecute.Add(command);
         }
 
-        public override void Execute()
+        public void Execute()
         {
             _commandsToExecute[0].Execute();
             _commandsToExecute.RemoveAt(0);
 
         }
-        public override void Unexecute()
+        public void Unexecute()
         {
             _receiver.removeMenu();
         }

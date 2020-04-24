@@ -8,14 +8,22 @@ namespace LanguageSchoolApp
     {
         public void Print(string message);
     }
+    public class Printer
+    {        
+        private PrintColourStrategy _printstrategy; //Strategy
+        public void PrintColour(PrintColourStrategy printstrategy, string message)
+        {
+            this._printstrategy = printstrategy;
+            _printstrategy.Print(message);
+        }
+    }
     public class PrintRed : PrintColourStrategy
     {
         public void Print(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
+            Console.Write(message);
             Console.ResetColor();
-            Console.WriteLine("");
         }
     }
     public class PrintGreen : PrintColourStrategy
@@ -23,9 +31,8 @@ namespace LanguageSchoolApp
         public void Print(string message)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(message);
+            Console.Write(message);
             Console.ResetColor();
-            Console.WriteLine("");
         }
     }
 
@@ -34,9 +41,35 @@ namespace LanguageSchoolApp
         public void Print(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
+            Console.Write(message);
             Console.ResetColor();
-            Console.WriteLine("");
+        }
+    }
+    public class PrintCyan : PrintColourStrategy
+    {
+        public void Print(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write(message);
+            Console.ResetColor();
+        }
+    }
+    public class PrintMagenta : PrintColourStrategy
+    {
+        public void Print(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.Write(message);
+            Console.ResetColor();
+        }
+    }
+    public class PrintBlue : PrintColourStrategy
+    {
+        public void Print(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write(message);
+            Console.ResetColor();
         }
     }
 }
