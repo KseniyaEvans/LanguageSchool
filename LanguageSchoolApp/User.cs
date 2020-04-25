@@ -11,6 +11,7 @@ namespace LanguageSchoolApp
         protected List<ICourse> _courses = new List<ICourse>();
         protected List<ICourse> _cart = new List<ICourse>();
         public abstract void visit(CourseCreator courseCreator);
+        public abstract void prepareCourse(CourseState state);
     }
     public class User : IUser
     {
@@ -22,6 +23,10 @@ namespace LanguageSchoolApp
         public override void visit(CourseCreator courseCreator)
         {
             Console.WriteLine(this.name + ", you are not allowed to create a course");
+        }
+        public override void prepareCourse(CourseState state)
+        {
+            Console.WriteLine(this.name + ", you are not allowed to prepare a course");
         }
         public User()
         {
@@ -128,7 +133,7 @@ namespace LanguageSchoolApp
     {
         CourseState preparedCourse = new DefaultState();
         public Admin(string _name) : base(_name) { }
-        public void prepareCourse(CourseState state)
+        public override void prepareCourse(CourseState state)
         {
             this.preparedCourse = state;
         }

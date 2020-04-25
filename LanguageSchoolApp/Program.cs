@@ -8,14 +8,24 @@ namespace LanguageSchoolApp
         //Additional Patterns: delegate, singleton
         static void Main(string[] args)
         {
-            User vasya = new User("Vasya");
+            User sophia = new User("Sophia Lakhman", 1000);
             Admin admin = new Admin("Kseniya");
-
             Database database = new Database(admin);
 
-            User user_1 = new User("Sophia Lakhman", 1000);
-            UserInterface terminal = new UserInterface(user_1);
-            terminal.Run();          
+            InterfaceMenu menuStrategy = new InterfaceMenu();
+            Console.WriteLine("[A]dmin or [U]ser? Type [a] or [u]");
+            string role = Console.ReadKey(true).KeyChar.ToString().ToLower();
+
+            if (role.Equals("a"))
+            {
+                menuStrategy.Show(new AdminMenuBuilder(), admin);
+            } else if (role.Equals("u"))
+            {
+                menuStrategy.Show(new UserMenuBuilder(), sophia);
+            }
+
+            
+
         }
         public class Database
         {

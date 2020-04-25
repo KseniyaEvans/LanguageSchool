@@ -12,9 +12,9 @@ namespace LanguageSchoolApp
 
     public class DefaultCommand : ICommand
     {
-        IMenuBuilder _receiver;
+        IMenu _receiver;
         MENU _menu;
-        public DefaultCommand(IMenuBuilder receiver, MENU menu)
+        public DefaultCommand(IMenu receiver, MENU menu)
         {
             this._menu = menu;
             this._receiver = receiver;
@@ -32,13 +32,11 @@ namespace LanguageSchoolApp
     public class Invoker: ICommand
     {
         private List<ICommand> _commandsToExecute = new List<ICommand>();
-        private IMenuBuilder _receiver;
-        
-        public Invoker(IMenuBuilder builder)
+        private IMenu _receiver;
+        public Invoker(IMenu builder)
         {
             this._receiver = builder;
         }
-
         public void AddCommand(ICommand command)
         {
             this._commandsToExecute.Add(command);
