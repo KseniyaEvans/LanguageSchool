@@ -9,6 +9,7 @@ namespace LanguageSchoolApp
     {
         public ICourse GetCourse(string key);
         public bool AddCourse(string key, ICourse course);
+        public bool RemoveCourse(string key);
         public void printCourses();
         public void PrintByLevel(LEVEL level);
     }
@@ -49,6 +50,15 @@ namespace LanguageSchoolApp
             
             this._courses.Add(key, course);
             return true;
+        }
+        public bool RemoveCourse(string key)
+        {
+            if (this._courses.ContainsKey(key))
+            {
+                this._courses.Remove(key);
+                return true;
+            }
+            return false;
         }
         public void printCourses()
         {

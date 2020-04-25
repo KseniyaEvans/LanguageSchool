@@ -4,11 +4,11 @@ using System.Text;
 
 namespace LanguageSchoolApp
 {
-    public abstract class IUserInterface // Pattern Method
+    public abstract class UserInterfaceTemplate // Template Method
     {
         protected IMenuBuilder menubuilder;
         protected Invoker invoker;
-        protected IUserInterface(User _user)
+        protected UserInterfaceTemplate(User _user)
         {
             this.menubuilder = new MenuBuilder(_user);
             this.invoker = new Invoker(this.menubuilder); 
@@ -29,7 +29,7 @@ namespace LanguageSchoolApp
             invoker.Unexecute();
         }
     }
-    public class UserInterface : IUserInterface
+    public class UserInterface : UserInterfaceTemplate
     {
         MENU _menu = MENU.MainMenu;
         public UserInterface(User _user) : base(_user) { }

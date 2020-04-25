@@ -4,8 +4,8 @@ namespace LanguageSchoolApp
 {
     class Program
     {
-        //Main Patterns: command, builder, prototype, state, visitor, flyweight, strategy
-        //Additional Patterns: delegate, pattern methon, singleton
+        //Main Patterns: command, builder, prototype, state, visitor, flyweight, strategy, template method
+        //Additional Patterns: delegate, singleton
         static void Main(string[] args)
         {
             User vasya = new User("Vasya");

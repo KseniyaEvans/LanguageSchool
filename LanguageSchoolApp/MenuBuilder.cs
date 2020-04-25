@@ -46,15 +46,14 @@ namespace LanguageSchoolApp
         {
             Console.WriteLine("      NAVIGATION: ");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            Console.WriteLine("      [M]ain menu\n      [P]ersonal Area Menu\n      [C]ourses Menu\n      [Ca]rt Menu");
+            Console.WriteLine("      [M]ain menu\n      [P]ersonal Area Menu\n      [Ca]rt Menu\n      [C]ourses Menu");
             Console.WriteLine("      [B]ack\n      [E]xit");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
         private void printUserInfo()
         {
             this._user.printInfo();
-            printCourses();
-            printCart();
+            printCourses();            
         }
         private void printCourses()
         {
@@ -66,12 +65,13 @@ namespace LanguageSchoolApp
                 {
                     _printer.PrintColour(new PrintYellow(), "\t" + cr.name + ", ");
                     Console.Write(cr.cost + ", " );
-                    _printer.PrintColour(new PrintGreen(), cr.level + "\n\n");
+                    _printer.PrintColour(new PrintGreen(), cr.level + "\n");
                 }
+                Console.WriteLine("\n");
             }
             else
             {
-                _printer.PrintColour(new PrintRed(), "Your courses list is empty.\n");
+                _printer.PrintColour(new PrintRed(), "Your courses list is empty.\n\n");
             }
         }
         private void printCart()
@@ -83,9 +83,9 @@ namespace LanguageSchoolApp
                 foreach (Course cr in cart)
                 {
                     _printer.PrintColour(new PrintYellow(), "\t" + cr.name + ", ");
-                    Console.WriteLine(cr.cost + "\n");
-                    //_printer.PrintColour(new PrintGreen(), cr.level + "\n");
+                    Console.WriteLine(cr.cost);
                 }
+                Console.WriteLine(" ");
             }
             else
             {

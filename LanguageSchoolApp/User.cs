@@ -17,6 +17,7 @@ namespace LanguageSchoolApp
         public User(string _name)
         {
             this.name = _name;
+            this.money = 0;
         }
         public override void visit(CourseCreator courseCreator)
         {
