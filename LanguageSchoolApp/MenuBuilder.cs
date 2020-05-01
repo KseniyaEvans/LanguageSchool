@@ -78,25 +78,31 @@ namespace LanguageSchoolApp
             input = Console.ReadLine().ToLower().ToString();
             int level_int = 0;
             bool isNumber = Int32.TryParse(input, out level_int);
-            ICourse course = this.data.GetCourse(level_int);
-            if (course != null)
+            if (isNumber)
             {
-                if (this._user.ContainsInCart(course))
+                ICourse course = this.data.GetCourse(level_int);
+                if (course != null)
                 {
-                    Console.WriteLine("You have already added this course to your cart.");
-                }
-                else if (this._user.ContainsInCourses(course))
-                {
-                    Console.WriteLine("You have already bought this course.");
+                    if (this._user.ContainsInCart(course))
+                    {
+                        Console.WriteLine("You have already added this course to your cart.");
+                    }
+                    else if (this._user.ContainsInCourses(course))
+                    {
+                        Console.WriteLine("You have already bought this course.");
+                    }
+                    else
+                    {
+                        this._user.AddCourseToCart(course);
+                    }
                 }
                 else
                 {
-                    this._user.AddCourseToCart(course);
+                    Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
                 }
-            }
-            else
+            } else
             {
-                Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
+                Console.WriteLine("Wrong input.");
             }
         }
     }
@@ -325,9 +331,17 @@ namespace LanguageSchoolApp
             }
 
             Console.WriteLine("Enter the cost of course: ");
-            int cost = Convert.ToInt32(Console.ReadLine());
-
-            this._admin.prepareCourse(new DynamicState(name, levelVal, cost));
+            string cost = Console.ReadLine().ToString();
+            int cost_int = 0;
+            bool isNumber = Int32.TryParse(name, out cost_int);
+            if (isNumber)
+            {
+                this._admin.prepareCourse(new DynamicState(name, levelVal, cost_int));
+            }
+            else
+            {
+                Console.WriteLine("Cost is a number!");
+            }
             courseCreator.accept(_admin);
         }
         public override void SetNavigation()
@@ -351,7 +365,13 @@ namespace LanguageSchoolApp
             string name = Console.ReadLine().ToLower().ToString();
             int level_int = 0;
             bool isNumber = Int32.TryParse(name, out level_int);
-            this.data.CloneCourse(level_int);
+            if (isNumber)
+            {
+                this.data.CloneCourse(level_int);
+            } else
+            {
+                Console.WriteLine("Wrong input.");
+            }
         }
         public override void SetNavigation()
         {
@@ -375,7 +395,7 @@ namespace LanguageSchoolApp
             string name = Console.ReadLine().ToLower().ToString();
             int level_int = 0;
             bool isNumber = Int32.TryParse(name, out level_int);
-            if (this.data.RemoveCourse(level_int))
+            if (isNumber && this.data.RemoveCourse(level_int))
             {
                 Console.WriteLine("Successfully removed!");
             }

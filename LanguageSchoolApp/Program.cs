@@ -35,9 +35,6 @@ namespace LanguageSchoolApp
                 }
                 
             }
-
-            
-
         }
         public class Database
         {
