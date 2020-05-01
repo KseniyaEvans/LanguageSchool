@@ -18,8 +18,8 @@ namespace LanguageSchoolApp
         RemoveCourse,
         BuyCourses,
         AddCourse,
+        CloneCourse
 
-        AddCourseToDatabase
     }
 
     public interface IMenu
@@ -30,12 +30,17 @@ namespace LanguageSchoolApp
     }
     public abstract class IMenuBuilder
     {
-        protected User _user;
+        protected User _user = null;
+        protected Admin _admin = null;
         protected CourseBase data = CourseBase.Instance();
         protected Printer _printer = new Printer();
         public IMenuBuilder(User user)
         {
             this._user = user;
+        }
+        public IMenuBuilder(Admin admin)
+        {
+            this._admin = admin;
         }
         public IMenuBuilder() { }
         //BUILDER and template method
@@ -43,9 +48,16 @@ namespace LanguageSchoolApp
         {
             Console.WriteLine("      NAVIGATION: ");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            Console.WriteLine("      [M]ain menu\n      [P]ersonal Area Menu\n      [Ca]rt Menu\n      [C]ourses Menu");
-            Console.WriteLine("      [B]ack\n      [E]xit");
+            Console.WriteLine("\t[M]ain menu");
+            Console.WriteLine("\t[C]ourses Menu");
+            SetNavigation();
+            Console.WriteLine("\t[B]ack\n\t[E]xit");
             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        }
+        public virtual void SetNavigation()
+        { 
+            Console.WriteLine("\t[P]ersonal Area Menu");
+            Console.WriteLine("\t[Ca]rt Menu\n");
         }
         public abstract void SetContent();
         public virtual void SetFooter()
@@ -61,10 +73,12 @@ namespace LanguageSchoolApp
             this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
 
             data.printCourses();
-            Console.WriteLine("Enter the name od course: ");
+            Console.WriteLine("Enter the number of the course's name: ");
             string input = "";
             input = Console.ReadLine().ToLower().ToString();
-            ICourse course = this.data.GetCourse(input);
+            int level_int = 0;
+            bool isNumber = Int32.TryParse(input, out level_int);
+            ICourse course = this.data.GetCourse(level_int);
             if (course != null)
             {
                 if (this._user.ContainsInCart(course))
@@ -85,7 +99,7 @@ namespace LanguageSchoolApp
                 Console.WriteLine("Sorry, this course hasn`t exist, or your input has a typo");
             }
         }
-    } 
+    }
     public class buildCartMenu : IMenuBuilder
     {
         public buildCartMenu(User user) : base(user) { }
@@ -148,6 +162,17 @@ namespace LanguageSchoolApp
     }
     public class buildMainMenu : IMenuBuilder
     {
+        public buildMainMenu() { }
+        public buildMainMenu(Admin admin) : base(admin) { }
+        public override void SetNavigation()
+        {
+            if (this._admin != null) { }
+            else
+            {
+                Console.WriteLine("\t[P]ersonal Area Menu");
+                Console.WriteLine("\t[Ca]rt Menu\n");
+            }
+        }
         public override void SetContent()
         {
             this._printer.PrintColour(new PrintGreen(), "\t\t\tMain Menu\n");
@@ -182,16 +207,28 @@ namespace LanguageSchoolApp
     }
     public class buildCoursesMenu : IMenuBuilder
     {
+        public buildCoursesMenu(User user) : base(user) { }
+        public buildCoursesMenu(Admin admin) : base(admin) { }
         public override void SetContent()
         {
             this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
 
             data.printCourses();
         }
-
+        public override void SetNavigation()
+        {
+            if (this._admin != null) { }
+        }
         public override void SetFooter()
         {
-            Console.WriteLine("\n[add] Add course to cart\n[level] Show courses by level\n");
+            if (this._admin != null)
+            {
+                Console.WriteLine("\n[add] Add course to database\n[rem] Remove course from database\n[cl] Clone course\n");
+            } else if (this._user != null)
+            {
+                Console.WriteLine("\n[add] Add course to cart\n[level] Show courses by level\n");
+            }
+
             Console.WriteLine("What menu would you like to go?");
         }
     }
@@ -263,7 +300,7 @@ namespace LanguageSchoolApp
     }
     public class buildAddCourseToDatabase : IMenuBuilder
     {
-        public buildAddCourseToDatabase(User user) : base(user)
+        public buildAddCourseToDatabase(Admin admin) : base(admin)
         {
         }
         CourseCreator courseCreator = new CourseCreator();
@@ -290,9 +327,65 @@ namespace LanguageSchoolApp
             Console.WriteLine("Enter the cost of course: ");
             int cost = Convert.ToInt32(Console.ReadLine());
 
-            this._user.prepareCourse(new DynamicState(name, levelVal, cost));
-            courseCreator.accept(_user);
+            this._admin.prepareCourse(new DynamicState(name, levelVal, cost));
+            courseCreator.accept(_admin);
+        }
+        public override void SetNavigation()
+        {
+            if (this._admin != null) { }
+        }
+    }
+    public class buildCloneCourseMenu : IMenuBuilder
+    {
+        public buildCloneCourseMenu(Admin admin) : base(admin)
+        {
+        }
+        CourseCreator courseCreator = new CourseCreator();
+        public override void SetContent()
+        {
+            data.printCourses();
 
+            this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
+
+            Console.WriteLine("Enter the number of the course's name: ");
+            string name = Console.ReadLine().ToLower().ToString();
+            int level_int = 0;
+            bool isNumber = Int32.TryParse(name, out level_int);
+            this.data.CloneCourse(level_int);
+        }
+        public override void SetNavigation()
+        {
+            if (this._admin != null) { }
+        }
+    }
+    
+    public class buildRemoveCourseFromDatabase : IMenuBuilder
+    {
+        public buildRemoveCourseFromDatabase(Admin admin) : base(admin)
+        {
+        }
+        CourseCreator courseCreator = new CourseCreator();
+        public override void SetContent()
+        {
+            data.printCourses();
+
+            this._printer.PrintColour(new PrintGreen(), "\t\t\tCourses Menu\n");
+
+            Console.WriteLine("Enter the number of the course's name: ");
+            string name = Console.ReadLine().ToLower().ToString();
+            int level_int = 0;
+            bool isNumber = Int32.TryParse(name, out level_int);
+            if (this.data.RemoveCourse(level_int))
+            {
+                Console.WriteLine("Successfully removed!");
+            }
+            else {
+                Console.WriteLine("Sorry, this course does not exist!");
+            }
+        }
+        public override void SetNavigation()
+        {
+            if (this._admin != null) { }
         }
     }
     public class Director //Director
@@ -313,12 +406,17 @@ namespace LanguageSchoolApp
     public class MenuBuilder : IMenu
     {
         private Stack<MENU> _menues = new Stack<MENU>();
-        private User _user;
+        private User _user = null;
+        private Admin _admin = null;
         Director director = new Director();
         IMenuBuilder builder = new buildMainMenu();
         public MenuBuilder(User user)
         {
             this._user = user;
+        }
+        public MenuBuilder(Admin admin)
+        {
+            this._admin = admin;
         }
         public void addMenu(MENU menu)
         {
@@ -334,10 +432,17 @@ namespace LanguageSchoolApp
             Console.Clear();
             if (this._menues.Count != 0)
             {
-                buildMenu(this._menues.Peek());
+                if (this._admin != null)
+                {
+                    buildAdminMenu(this._menues.Peek());
+                }
+                else
+                {
+                    buildUserMenu(this._menues.Peek());
+                }
             }
         }
-        private void buildMenu(MENU menu)
+        private void buildUserMenu(MENU menu)
         {
             switch (menu)
             {
@@ -385,14 +490,14 @@ namespace LanguageSchoolApp
                     }
                 case MENU.RemoveCourse:
                     {
-                        this.builder = new buildBuyCourses(this._user);
+                        this.builder = new buildRemoveCourse(this._user);
                         director.Builder = this.builder;
                         director.buildFullMenu();
                         break;
                     }
                 case MENU.CoursesMenu:
                     {
-                        this.builder = new buildCoursesMenu();
+                        this.builder = new buildCoursesMenu(this._user);
                         director.Builder = this.builder;
                         director.buildFullMenu();
                         break;
@@ -404,14 +509,7 @@ namespace LanguageSchoolApp
                     }
                 case MENU.CoursesByLevel:
                     {
-                        this.builder = new buildBuyCourses(this._user);
-                        director.Builder = this.builder;
-                        director.buildFullMenu();
-                        break;
-                    }
-                case MENU.AddCourseToDatabase:
-                    {
-                        this.builder = new buildAddCourseToDatabase(this._user);
+                        this.builder = new buildCoursesByLevel();
                         director.Builder = this.builder;
                         director.buildFullMenu();
                         break;
@@ -424,5 +522,59 @@ namespace LanguageSchoolApp
             }
             
         }
-    } 
+
+        private void buildAdminMenu(MENU menu)
+        {
+            switch (menu)
+            {
+                case MENU.MainMenu:
+                    {
+                        this.builder = new buildMainMenu(this._admin);
+                        director.Builder = this.builder;
+                        director.buildFullMenu();
+                        break;
+                    }
+                case MENU.RemoveCourse:
+                    {
+                        this.builder = new buildRemoveCourseFromDatabase(this._admin);
+                        director.Builder = this.builder;
+                        director.buildFullMenu();
+                        break;
+                    }
+                case MENU.AddCourse:
+                    {
+                        this.builder = new buildAddCourseToDatabase(this._admin);
+                        director.Builder = this.builder;
+                        director.buildFullMenu();
+                        break;
+                    }
+                case MENU.CloneCourse:
+                    {
+                        this.builder = new buildCloneCourseMenu(this._admin);
+                        director.Builder = this.builder;
+                        director.buildFullMenu();
+                        break;
+                    }
+                case MENU.CoursesMenu:
+                    {
+                        this.builder = new buildCoursesMenu(this._admin);
+                        director.Builder = this.builder;
+                        director.buildFullMenu();
+                        break;
+                    }
+                case MENU.BackMenu:
+                    {
+                        removeMenu();
+                        break;
+                    }
+                default:
+                    {
+                        Console.WriteLine("Unknown command. Repeat please.");
+                        break;
+                    }
+            }
+
+        }
+
+    }
 }

@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace LanguageSchoolApp
 {
     interface ICourseBase
     {
-        public ICourse GetCourse(string key);
-        public bool AddCourse(string key, ICourse course);
-        public bool RemoveCourse(string key);
+        public ICourse GetCourse(int key);
+        public bool AddCourse(ICourse course);
+        public bool CloneCourse(int key);
+        public bool RemoveCourse(int key);
         public void printCourses();
         public void PrintByLevel(LEVEL level);
     }
     public class CourseBase : ICourseBase//Flyweight
     {
-        private Dictionary<string, ICourse> _courses = new Dictionary<string, ICourse>();
+        private Dictionary<int, ICourse> _courses = new Dictionary<int, ICourse>();
         private static CourseBase _instance;
+        private static int count = 1;
         private Printer _printer = new Printer();
         private CourseBase() { }
         public static CourseBase Instance() //Singleton
@@ -27,7 +31,7 @@ namespace LanguageSchoolApp
             }
             return _instance;
         }
-        public ICourse GetCourse(string key)
+        public ICourse GetCourse(int key)
         {
             if (this._courses.ContainsKey(key))
             {
@@ -35,25 +39,27 @@ namespace LanguageSchoolApp
             }
             return null;
         }
-        public bool AddCourse(string key, ICourse course)
+        public bool CloneCourse(int key)
         {
-            if (this._courses.ContainsKey(key))
-            {
-                Console.WriteLine("Sorry, such course has already exist");
-                return false;
-            }
+            ICourse cr = GetCourse(key);
+            AddCourse((ICourse)cr.Clone());
+            return true;
+        }
+        public bool AddCourse(ICourse course)
+        {
             if (course == null)
             {
                 Console.WriteLine("Sorry, your course is null");
                 return false;
             }
             
-            this._courses.Add(key, course);
+            this._courses.Add(count, course);
+            count += 1;
             return true;
         }
-        public bool RemoveCourse(string key)
+        public bool RemoveCourse(int key)
         {
-            if (this._courses.ContainsKey(key))
+            if (GetCourse(key)!= null)
             {
                 this._courses.Remove(key);
                 return true;
@@ -62,11 +68,11 @@ namespace LanguageSchoolApp
         }
         public void printCourses()
         {
-            foreach (KeyValuePair<string, ICourse> cs in this._courses)
+            foreach (KeyValuePair<int, ICourse> cs in this._courses)
             {
                 Console.Write("\t\t");
                 Console.BackgroundColor = ConsoleColor.Red;
-                this._printer.PrintColour(new PrintYellow(), cs.Key);
+                this._printer.PrintColour(new PrintYellow(), "\t\t[" + cs.Key.ToString() + "] " + cs.Value.name);
                 Console.Write(", " + cs.Value.cost + " UAN");
                 Console.WriteLine(", " + cs.Value.level);
             }
@@ -77,11 +83,11 @@ namespace LanguageSchoolApp
             Console.Write("\n\t\tCourses by level ");
             this._printer.PrintColour(new PrintGreen(), level.ToString() + "\n");
 
-            foreach (KeyValuePair<string, ICourse> cs in this._courses)
+            foreach (KeyValuePair<int, ICourse> cs in this._courses)
             {
                 if (cs.Value.level == level)
                 {
-                    this._printer.PrintColour(new PrintYellow(), "\t\t" + cs.Key);
+                    this._printer.PrintColour(new PrintYellow(), "\t\t[" + cs.Key.ToString() + "] " + cs.Value.name);
                     Console.WriteLine(", " + cs.Value.cost + " UAN");
                 }
             }

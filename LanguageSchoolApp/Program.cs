@@ -4,24 +4,36 @@ namespace LanguageSchoolApp
 {
     class Program
     {
-        //Main Patterns: command, builder, prototype, state, visitor, flyweight, strategy, template method
+        //Main Patterns: command, builder, prototype, state, visitor, strategy, template method
         //Additional Patterns: delegate, singleton
         static void Main(string[] args)
         {
             User sophia = new User("Sophia Lakhman", 1000);
-            Admin admin = new Admin("Kseniya");
+            Admin admin = new Admin("kseniya", "111222");
             Database database = new Database(admin);
 
             InterfaceMenu menuStrategy = new InterfaceMenu();
-            Console.WriteLine("[A]dmin or [U]ser? Type [a] or [u]");
-            string role = Console.ReadKey(true).KeyChar.ToString().ToLower();
+            
+            string role = "";
+            bool isProgramRunning = true;
+            while (isProgramRunning)
+            {
+                Console.Clear();
+                Console.WriteLine("[A]dmin or [U]ser?\n[e] - exit");
+                role = Console.ReadKey(true).KeyChar.ToString().ToLower();
+                if (role.Equals("a"))
+                {
+                    Authentication auth = new Authentication(admin);
+                    auth.runMenu();
 
-            if (role.Equals("a"))
-            {
-                menuStrategy.Show(new AdminMenuBuilder(), admin);
-            } else if (role.Equals("u"))
-            {
-                menuStrategy.Show(new UserMenuBuilder(), sophia);
+                } else if (role.Equals("u"))
+                {
+                    menuStrategy.Show(new UserMenuBuilder(sophia));
+                } else if (role.Equals("e"))
+                {
+                    isProgramRunning = false;
+                }
+                
             }
 
             

@@ -13,7 +13,6 @@ namespace LanguageSchoolApp
         C1,
         C2
     }
-
     //Prototype
     public abstract class ICourse : ICloneable
     {
@@ -89,7 +88,7 @@ namespace LanguageSchoolApp
     }
     public interface ICourseVisitor // visitor
     {
-        public void visit(CourseCreator courseCreator);
+        public void visit(CourseCreator courseCreatorp);
     }
     public class CourseCreator: ICourseElement //element
     {

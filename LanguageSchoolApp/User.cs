@@ -129,19 +129,31 @@ namespace LanguageSchoolApp
         }
     }
 
-    public class Admin : User
+    public class Admin : IUser
     {
+        string password = "1";
         CourseState preparedCourse = new DefaultState();
-        public Admin(string _name) : base(_name) { }
+        public Admin(string login, string password)
+        {
+            this.name = login;
+            this.money = 0;
+            this.password = password;
+        }
+        public bool isPasswordRight(string pass)
+        {
+            return this.password.Equals(pass);
+        }
         public override void prepareCourse(CourseState state)
         {
             this.preparedCourse = state;
         }
-        //Prototype, State and Visitor together (and Flyweight additional)
+        //Prototype, State and Visitor together
         public override void visit(CourseCreator courseCreator)
         {
             ICourse ct = courseCreator.prototype.create(preparedCourse);
-            courseCreator.database.AddCourse(ct.name, ct);
+            courseCreator.database.AddCourse(ct);
         }
     }
+
 }
+
