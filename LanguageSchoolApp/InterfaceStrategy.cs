@@ -19,7 +19,6 @@ namespace LanguageSchoolApp
     }
     public class UserMenuBuilder : IMenuStrategy
     {
-        //IMenuStrategy menubuilder;
         IMenu menubuilder;
         Invoker invoker;
         User _user;
@@ -263,28 +262,21 @@ namespace LanguageSchoolApp
         }
     }
     //proxy     
-    public class Authentication : IMenuStrategy
+    public class AdminAuthentication : IMenuStrategy
     {
-        Admin _admin;
+        Admin _admin = null;
         InterfaceMenu menuStrategy = new InterfaceMenu();
-        public Authentication(Admin admin)
+        public AdminAuthentication(Admin admin)
         {
             this._admin = admin;
         }
-        public void runMenu()
+        private string getPass()
         {
-            Console.Clear();
-            Console.WriteLine("Login: ");
-            string login = Console.ReadLine().ToString();
-            Console.WriteLine("Password: ");
-            //string pass = Console.ReadLine().ToString();
-
-
             string pass = "";
             do
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
-                // Backspace Should Not Work
+
                 if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
                 {
                     pass += key.KeyChar;
@@ -303,16 +295,85 @@ namespace LanguageSchoolApp
                     }
                 }
             } while (true);
+            return pass;
+        }
+        public void runMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Login: ");
+            string login = Console.ReadLine().ToString();
+            Console.WriteLine("Password: ");
 
-
-            if (_admin.name.Equals(login) && _admin.isPasswordRight(pass))
+            string pass = getPass();
+            if (_admin != null)
             {
-                menuStrategy.Show(new AdminMenuBuilder(_admin));
+                if (_admin.name.Equals(login) && _admin.isPasswordRight(pass))
+                {
+                    menuStrategy.Show(new AdminMenuBuilder(_admin));
+                }
+                else
+                {
+                    Console.WriteLine("\nLogin or password is wrong!");
+                    System.Threading.Thread.Sleep(1200);
+                }
             }
-            else
+        }
+    }
+
+    public class UserAuthentication : IMenuStrategy
+    {        
+        User _user = null;
+        InterfaceMenu menuStrategy = new InterfaceMenu();
+        public UserAuthentication(User user)
+        {
+            this._user = user;
+        }
+        private string getPass()
+        {
+            string pass = "";
+            do
             {
-                Console.WriteLine("\nLogin or password is wrong!");
-                System.Threading.Thread.Sleep(1500);
+                ConsoleKeyInfo key = Console.ReadKey(true);
+
+                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                {
+                    pass += key.KeyChar;
+                    Console.Write("*");
+                }
+                else
+                {
+                    if (key.Key == ConsoleKey.Backspace && pass.Length > 0)
+                    {
+                        pass = pass.Substring(0, (pass.Length - 1));
+                        Console.Write("\b \b");
+                    }
+                    else if (key.Key == ConsoleKey.Enter)
+                    {
+                        break;
+                    }
+                }
+            } while (true);
+            return pass;
+        }
+        public void runMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Login: ");
+            string login = Console.ReadLine().ToString();
+            Console.WriteLine("Password: ");
+
+            string pass = getPass();
+            if (_user != null)
+            {
+                if (_user.name.Equals(login) && _user.isPasswordRight(pass))
+                {
+                    menuStrategy.Show(new UserMenuBuilder(_user));
+                }
+                else
+                {
+                    Console.WriteLine("\nLogin or password is wrong!");
+                    System.Threading.Thread.Sleep(1200);
+                }
             }
         }
     }

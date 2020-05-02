@@ -4,11 +4,11 @@ namespace LanguageSchoolApp
 {
     class Program
     {
-        //Main Patterns: command, builder, prototype, state, visitor, strategy, template method
+        //Main Patterns: command, builder, prototype, state, visitor, strategy, template method, proxy
         //Additional Patterns: delegate, singleton
         static void Main(string[] args)
         {
-            User sophia = new User("Sophia Lakhman", 1000);
+            User sophia = new User("sophia", "222333", 1000);
             Admin admin = new Admin("kseniya", "111222");
             Database database = new Database(admin);
 
@@ -23,12 +23,13 @@ namespace LanguageSchoolApp
                 role = Console.ReadKey(true).KeyChar.ToString().ToLower();
                 if (role.Equals("a"))
                 {
-                    Authentication auth = new Authentication(admin);
+                    AdminAuthentication auth = new AdminAuthentication(admin);
                     auth.runMenu();
 
                 } else if (role.Equals("u"))
                 {
-                    menuStrategy.Show(new UserMenuBuilder(sophia));
+                    UserAuthentication auth = new UserAuthentication(sophia);
+                    auth.runMenu();
                 } else if (role.Equals("e"))
                 {
                     isProgramRunning = false;

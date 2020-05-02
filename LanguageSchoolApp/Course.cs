@@ -89,13 +89,27 @@ namespace LanguageSchoolApp
     public interface ICourseVisitor // visitor
     {
         public void visit(CourseCreator courseCreatorp);
+        public void visit(CourseRemover courseRemover);
     }
-    public class CourseCreator: ICourseElement //element
+    public class CourseCreator: ICourseElement //elementA
     {
         public Course prototype = new Course();
         public CourseBase database = CourseBase.Instance();
         public void accept(ICourseVisitor visitor)
         { 
+            visitor.visit(this);
+        }
+    }
+    public class CourseRemover : ICourseElement //elementB
+    {
+        public CourseBase database = CourseBase.Instance();
+        public int key;
+        public CourseRemover(int key)
+        {
+            this.key = key;
+        }
+        public void accept(ICourseVisitor visitor)
+        {
             visitor.visit(this);
         }
     }

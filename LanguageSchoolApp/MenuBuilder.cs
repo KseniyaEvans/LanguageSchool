@@ -19,9 +19,7 @@ namespace LanguageSchoolApp
         BuyCourses,
         AddCourse,
         CloneCourse
-
     }
-
     public interface IMenu
     {
         public abstract void addMenu(MENU menu);
@@ -224,6 +222,11 @@ namespace LanguageSchoolApp
         public override void SetNavigation()
         {
             if (this._admin != null) { }
+            else
+            {
+                Console.WriteLine("\t[P]ersonal Area Menu");
+                Console.WriteLine("\t[Ca]rt Menu\n");
+            }
         }
         public override void SetFooter()
         {
@@ -331,9 +334,9 @@ namespace LanguageSchoolApp
             }
 
             Console.WriteLine("Enter the cost of course: ");
-            string cost = Console.ReadLine().ToString();
+            string cost = Console.ReadLine().ToLower().ToString();
             int cost_int = 0;
-            bool isNumber = Int32.TryParse(name, out cost_int);
+            bool isNumber = Int32.TryParse(cost, out cost_int);
             if (isNumber)
             {
                 this._admin.prepareCourse(new DynamicState(name, levelVal, cost_int));
@@ -354,7 +357,6 @@ namespace LanguageSchoolApp
         public buildCloneCourseMenu(Admin admin) : base(admin)
         {
         }
-        CourseCreator courseCreator = new CourseCreator();
         public override void SetContent()
         {
             data.printCourses();
@@ -378,13 +380,11 @@ namespace LanguageSchoolApp
             if (this._admin != null) { }
         }
     }
-    
     public class buildRemoveCourseFromDatabase : IMenuBuilder
     {
         public buildRemoveCourseFromDatabase(Admin admin) : base(admin)
         {
         }
-        CourseCreator courseCreator = new CourseCreator();
         public override void SetContent()
         {
             data.printCourses();
@@ -393,11 +393,12 @@ namespace LanguageSchoolApp
 
             Console.WriteLine("Enter the number of the course's name: ");
             string name = Console.ReadLine().ToLower().ToString();
-            int level_int = 0;
-            bool isNumber = Int32.TryParse(name, out level_int);
-            if (isNumber && this.data.RemoveCourse(level_int))
+            int key = 0;
+            bool isNumber = Int32.TryParse(name, out key);
+            if (isNumber)
             {
-                Console.WriteLine("Successfully removed!");
+                CourseRemover courseRemover = new CourseRemover(key);
+                courseRemover.accept(this._admin);
             }
             else {
                 Console.WriteLine("Sorry, this course does not exist!");
@@ -408,6 +409,7 @@ namespace LanguageSchoolApp
             if (this._admin != null) { }
         }
     }
+    
     public class Director //Director
     {
         private IMenuBuilder _builder;
@@ -540,9 +542,7 @@ namespace LanguageSchoolApp
                         break;
                     }
             }
-            
         }
-
         private void buildAdminMenu(MENU menu)
         {
             switch (menu)

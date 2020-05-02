@@ -4,39 +4,41 @@ using System.Text;
 
 namespace LanguageSchoolApp
 {
-    public abstract class IUser : ICourseVisitor // visitor
+    public abstract class IUser : ICourseVisitor // concrete visitor
     {
         public string name;
         protected int money;
+        protected string password = "";
         protected List<ICourse> _courses = new List<ICourse>();
         protected List<ICourse> _cart = new List<ICourse>();
         public abstract void visit(CourseCreator courseCreator);
-        public abstract void prepareCourse(CourseState state);
+        public abstract void visit(CourseRemover courseRemover);
+        public virtual bool isPasswordRight(string pass)
+        {
+            return this.password.Equals(pass);
+        }
     }
     public class User : IUser
     {
-        public User(string _name)
+        public User(string _name, string pass)
         {
             this.name = _name;
             this.money = 0;
+            this.password = pass;
         }
         public override void visit(CourseCreator courseCreator)
         {
             Console.WriteLine(this.name + ", you are not allowed to create a course");
         }
-        public override void prepareCourse(CourseState state)
+        public override void visit(CourseRemover courseRemover)
         {
-            Console.WriteLine(this.name + ", you are not allowed to prepare a course");
+            Console.WriteLine(this.name + ", you are not allowed to delete a course");
         }
-        public User()
-        {
-            this.money = 0;
-            this.name = "guest";
-        }
-        public User(string name, int money)
+        public User(string name, string pass, int money)
         {
             this.name = name;
             this.money = money;
+            this.password = pass;
         }
         public List<ICourse> GetCourses()
         {
@@ -131,7 +133,6 @@ namespace LanguageSchoolApp
 
     public class Admin : IUser
     {
-        string password = "1";
         CourseState preparedCourse = new DefaultState();
         public Admin(string login, string password)
         {
@@ -139,11 +140,7 @@ namespace LanguageSchoolApp
             this.money = 0;
             this.password = password;
         }
-        public bool isPasswordRight(string pass)
-        {
-            return this.password.Equals(pass);
-        }
-        public override void prepareCourse(CourseState state)
+        public void prepareCourse(CourseState state)
         {
             this.preparedCourse = state;
         }
@@ -152,6 +149,10 @@ namespace LanguageSchoolApp
         {
             ICourse ct = courseCreator.prototype.create(preparedCourse);
             courseCreator.database.AddCourse(ct);
+        }
+        public override void visit(CourseRemover courseRemover)
+        {
+            courseRemover.database.RemoveCourse(courseRemover.key);
         }
     }
 
